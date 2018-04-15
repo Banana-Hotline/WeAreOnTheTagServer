@@ -1,7 +1,6 @@
 # from sqlalchemy import create_engine
 import server_utils
 import sqlite3
-import server_utils
 
 def create_connection(db_file):
     """ create a database connection to the SQLite database
@@ -14,15 +13,23 @@ def create_connection(db_file):
         return conn
     except Exception as e:
         print(e)
-
     return None
 
 def create_session(conn):
-    sql = '''INSERT INTO tasks(name,priority,status_id,project_id,begin_date,end_date)'''
+    sql = '''insert into GAME_SESSION (start_time,state) values (datetime('now'), 'WAITING')'''
     cur = conn.cursor()
     cur.execute(sql)
     session_id = cur.lastrowid
-    return create_response('Success',"Created Session: %s" %session_id)
+    return session_id
+
+def join_session(conn, user_id, session_id):
+    sql = 'update GAME_SESSION set player_1=\''+ str(user_id) + '\' where session_id =\'' + str(session_id) + '\''
+    cur = conn.cursor()
+    cur.execute(sql)
+    session_id = cur.lastrowid
+    return server_utils.create_respone('Success',"joined session_id: %s" %session_id)
+
+
 
 def main():
     database = "laserdb.db"
@@ -32,19 +39,9 @@ def main():
     # create a database connection
     conn = create_connection(database)
 
-    print create_session(conn)
-    # with conn:
-    #     # create a new project
-    #     project = ('Cool App with SQLite & Python', '2015-01-01', '2015-01-30');
-    #     project_id = create_project(conn, project)
-    #
-    #     # tasks
-    #     task_1 = ('Analyze the requirements of the app', 1, 1, project_id, '2015-01-01', '2015-01-02')
-    #     task_2 = ('Confirm with user about the top requirements', 1, 1, project_id, '2015-01-03', '2015-01-05')
-    #
-    #     # create tasks
-    #     create_task(conn, task_1)
-    #     create_task(conn, task_2)
+    session_id = create_session(conn)
+    join_session(conn, 1, session_id)
+    print session_id
 
 
 if __name__ == '__main__':
