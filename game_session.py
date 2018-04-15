@@ -1,6 +1,7 @@
 # from sqlalchemy import create_engine
 import server_utils
 import sqlite3
+import server_utils
 
 def create_connection(db_file):
     """ create a database connection to the SQLite database
@@ -21,7 +22,7 @@ def create_session(conn):
     cur = conn.cursor()
     cur.execute(sql)
     session_id = cur.lastrowid
-    return create_respone('Success',"Created Session: %s" %session_id)
+    return create_response('Success',"Created Session: %s" %session_id)
 
 def main():
     database = "laserdb.db"

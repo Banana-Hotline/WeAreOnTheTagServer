@@ -34,12 +34,12 @@ class add_players(Resource):
 			query = conn.execute("insert into PLAYER_INFO ( user_id, display_name, display_image) values ('%s', '%s', '%s') " %(content['user_id'], content['display_name'],content['display_image']))
 		except Exception as e:
 
-			return create_respone('Fail','user_id is already present in the database')
+			return create_response('Fail','user_id is already present in the database')
 		print query
 		print (content)
 		print (content['display_name'])
 		print (content['display_image'])
-		return create_respone('Success','user was added to database')
+		return create_response('Success','user was added to database')
 
 class remove_players(Resource):
 	def post(self):
@@ -50,8 +50,8 @@ class remove_players(Resource):
 			query = conn.execute("delete from PLAYER_INFO where user_id = '%s'" %content['user_id'])
 		except Exception as e:
 			print e
-			return server_utils.create_respone('Fail','Failed to remove user from database')
-		return server_utils.create_respone('Success',"User %s has been removed from database" %content['user_id'])
+			return create_response('Fail','Failed to remove user from database')
+		return create_response('Success',"User %s has been removed from database" %content['user_id'])
 
 api.add_resource(players, '/players') # Route_4
 api.add_resource(players_Info, '/players/<player_id>') # Route_5

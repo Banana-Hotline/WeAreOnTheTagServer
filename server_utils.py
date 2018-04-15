@@ -1,2 +1,2 @@
-def create_respone(result, message):
+def create_response(result, message):
     return {"data":{'Result':result,'Message':message}}
