@@ -72,11 +72,28 @@ class hit_notify(Resource):
 			return create_response('Fail','Failed update hit in database')
 		return create_response('Success', hit_notify_message_body %(victim_stats['display_name'], int(victim_stats['stat_2']) + 1, attacker_stats['display_name'], int(attacker_stats['stat_1']) + 1))
 
+class sync_player_stats(Resource):
+	def post(self,player_id):
+		content = request.get_json()
+		print ("Syncing User %s stats." %(player_id))
+		conn = db_connect.connect()
+		try:
+			player_stats = get_player_info(player_id)['data'][0]
+			if (int(player_stats['stat_3']) > int(content['shots'])):
+				return create_response('Fail','Failed update stats')
+			query = conn.execute("update PLAYER_INFO set stat_3 = '%s' where user_id = '%s'" %(int(content['shots']), player_id))
+		except Exception as e:
+			print e
+			return create_response('Fail','Failed update hit in database')
+		return create_response('Success',  "Synced User %s stats. Shots: %s" %(player_id, content['shots']))
+	
 api.add_resource(players, '/players') # Route_4
 api.add_resource(players_Info, '/players/<player_id>') # Route_5
 api.add_resource(add_players, '/players/add') # Route_5
 api.add_resource(remove_players, '/players/remove') # Route_5
 api.add_resource(hit_notify, '/hit/<player_id>/<attacker_id>') # Route_5
+api.add_resource(sync_player_stats, '/stats/<player_id>') # Route_5
+
 
 
 if __name__ == '__main__':
