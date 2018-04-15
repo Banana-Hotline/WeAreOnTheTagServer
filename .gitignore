@@ -1,2 +1,5 @@
 #Ignore .pyc files
 *.pyc
+
+#Ignore pem files in the certs directory
+certs/*.pem

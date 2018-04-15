@@ -61,5 +61,4 @@ api.add_resource(remove_players, '/players/remove') # Route_5
 
 if __name__ == '__main__':
 	app.debug=True
-	app.ssl_context=('cert.pem', 'key.pem')
-	app.run(host='0.0.0.0',port=5002)
+	app.run(host='0.0.0.0',port=5002,ssl_context=('certs/cert.pem', 'certs/key.pem'))
