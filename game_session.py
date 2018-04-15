@@ -1,5 +1,5 @@
 # from sqlalchemy import create_engine
-import server_utils
+from server_utils import *
 import sqlite3
 
 def create_connection(db_file):
@@ -27,7 +27,7 @@ def join_session(conn, user_id, session_id):
     cur = conn.cursor()
     cur.execute(sql)
     session_id = cur.lastrowid
-    return server_utils.create_respone('Success',"joined session_id: %s" %session_id)
+    return create_response('Success',"joined session_id: %s" %session_id)
 
 
 

@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from json import dumps
 import jsonify
 import json
-import server_utils
+from server_utils import *
 
 db_connect = create_engine('sqlite:///laserdb.db')
 app = Flask(__name__)
