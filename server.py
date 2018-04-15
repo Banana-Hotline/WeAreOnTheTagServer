@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from json import dumps
 import jsonify
 import json
+import server_utils
 
 db_connect = create_engine('sqlite:///laserdb.db')
 app = Flask(__name__)
@@ -49,8 +50,8 @@ class remove_players(Resource):
 			query = conn.execute("delete from PLAYER_INFO where user_id = '%s'" %content['user_id'])
 		except Exception as e:
 			print e
-			return create_respone('Fail','Failed to remove user from database')
-		return create_respone('Success',"User %s has been removed from database" %content['user_id'])
+			return server_utils.create_respone('Fail','Failed to remove user from database')
+		return server_utils.create_respone('Success',"User %s has been removed from database" %content['user_id'])
 
 api.add_resource(players, '/players') # Route_4
 api.add_resource(players_Info, '/players/<player_id>') # Route_5
