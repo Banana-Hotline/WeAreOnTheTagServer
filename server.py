@@ -33,7 +33,7 @@ class add_players(Resource):
 		try:
 			query = conn.execute("insert into PLAYER_INFO ( user_id, display_name, display_image) values ('%s', '%s', '%s') " %(content['user_id'], content['display_name'],content['display_image']))
 		except Exception as e:
-
+			print e
 			return create_response('Fail','user_id is already present in the database')
 		print query
 		print (content)
