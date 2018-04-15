@@ -2,19 +2,6 @@
 from server_utils import *
 import sqlite3
 
-def create_connection(db_file):
-    """ create a database connection to the SQLite database
-        specified by db_file
-    :param db_file: database file
-    :return: Connection object or None
-    """
-    try:
-        conn = sqlite3.connect(db_file)
-        return conn
-    except Exception as e:
-        print(e)
-    return None
-
 def create_session(conn):
     sql = '''insert into GAME_SESSION (start_time,state) values (datetime('now'), 'WAITING')'''
     cur = conn.cursor()
@@ -29,6 +16,11 @@ def join_session(conn, user_id, session_id):
     session_id = cur.lastrowid
     return create_response('Success',"joined session_id: %s" %session_id)
 
+def create_session_db(db, session_id):
+    conn = create_connection("session_%s.db" %session_id)
+    sql_create_session_data_table = """ CREATE TABLE `SESSION_DATA` ( `session_id` INTEGER, `hit_player` INTEGER, `shooter_id` INTEGER, `hit_time` DATE );"""
+    create_table(conn, sql_create_session_data_table)
+
 
 
 def main():
@@ -40,7 +32,11 @@ def main():
     conn = create_connection(database)
 
     session_id = create_session(conn)
-    join_session(conn, 1, session_id)
+
+    # conn2 = create_connection("session_%s.db" %session_id)
+    create_session_db("session_%s.db" %session_id, session_id)
+
+    # print join_session(conn2, 1, session_id)
     print session_id
 
 
