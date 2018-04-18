@@ -1,98 +1,87 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
-from sqlalchemy import create_engine
 from json import dumps
 import jsonify
 import json
 from server_utils import *
+		# Import Minio library.
+from minio import Minio
+from minio.error import (ResponseError, BucketAlreadyOwnedByYou,
+                         BucketAlreadyExists)
 
-db_connect = create_engine('sqlite:///laserdb.db')
 app = Flask(__name__)
 api = Api(app)
 
-def get_player_info(player_id):
-	conn = db_connect.connect()
-	query = conn.execute("select user_id, display_name, display_image, stat_1, stat_2, stat_3 from PLAYER_INFO where user_id =%d " %int(player_id))
-	result = {'data': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
-	return result
-
 class players(Resource):
 	def get(self):
-		conn = db_connect.connect()
-		query = conn.execute("select user_id, display_name, display_image from PLAYER_INFO;")
-		result = {'data': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
-		return result
+		return create_response('Fail','Not currently implemented')
 
 class players_Info(Resource):
 	def get(self, player_id):
-		return get_player_info(player_id)
+		return create_response('Fail','Not currently implemented')
 
 class add_players(Resource):
 	def post(self):
-		#print (request.is_json)
-		content = request.get_json()
-		conn = db_connect.connect()
-		try:
-			query = conn.execute("insert into PLAYER_INFO ( user_id, display_name, display_image, stat_1, stat_2, stat_3) values ('%s', '%s', '%s', 0, 0, 0) " %(content['user_id'], content['display_name'],content['display_image']))
-		except Exception as e:
-
-			return create_response('Fail','user_id is already present in the database')
-		print query
-		print (content)
-		print (content['display_name'])
-		print (content['display_image'])
-		return create_response('Success','user was added to database')
+		return create_response('Fail','Not currently implemented')
 
 class remove_players(Resource):
 	def post(self):
-		content = request.get_json()
-		print ("Removing user %s from database." %content['user_id'])
-		conn = db_connect.connect()
-		try:
-			query = conn.execute("delete from PLAYER_INFO where user_id = '%s'" %content['user_id'])
-		except Exception as e:
-			print e
-			return create_response('Fail','Failed to remove user from database')
-		return create_response('Success',"User %s has been removed from database" %content['user_id'])
+		return create_response('Fail','Not currently implemented')
 
 class hit_notify(Resource):
 	def post(self, player_id, attacker_id):
-		if(player_id == attacker_id):
-			return create_response('Fail',"Players can't tag themselves")
-		content = request.get_json()
-		print ("User %s was hit by %s." %(player_id, attacker_id))
-		conn = db_connect.connect()
-		try:
-			victim_stats = get_player_info(player_id)['data'][0]
-			attacker_stats = get_player_info(attacker_id)['data'][0]
-			query = conn.execute("update PLAYER_INFO set stat_2 = '%s' where user_id = '%s'" %(int(victim_stats['stat_2']) + 1, player_id))
-			query = conn.execute("update PLAYER_INFO set stat_1 = '%s' where user_id = '%s'" %(int(attacker_stats['stat_1']) + 1, attacker_id))
-		except Exception as e:
-			print e
-			return create_response('Fail','Failed update hit in database')
-		return create_response('Success', hit_notify_message_body %(victim_stats['display_name'], int(victim_stats['stat_2']) + 1, attacker_stats['display_name'], int(attacker_stats['stat_1']) + 1))
+		return create_response('Fail','Not currently implemented')
 
-class sync_player_stats(Resource):
-	def post(self,player_id):
-		content = request.get_json()
-		print ("Syncing User %s stats." %(player_id))
-		conn = db_connect.connect()
+class minio_test(Resource):
+	def post(self):
+
+		# Initialize minioClient with an endpoint and access/secret keys.
+		minioClient = Minio('play.minio.io:9000',
+							access_key='Q3AM3UQ867SPQQA43P2F',
+							secret_key='zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG',
+							secure=True)
+
+		# Make a bucket with the make_bucket API call.
 		try:
-			player_stats = get_player_info(player_id)['data'][0]
-			if (int(player_stats['stat_3']) > int(content['shots'])):
-				return create_response('Fail','Failed update stats')
-			query = conn.execute("update PLAYER_INFO set stat_3 = '%s' where user_id = '%s'" %(int(content['shots']), player_id))
-		except Exception as e:
-			print e
-			return create_response('Fail','Failed update hit in database')
-		return create_response('Success',  "Synced User %s stats. Shots: %s" %(player_id, content['shots']))
-	
+			minioClient.make_bucket("maylogs", location="us-east-1")
+		except BucketAlreadyOwnedByYou as err:
+			print "AlreadyOwned"
+			pass
+		except BucketAlreadyExists as err:
+			print "AlreadyExists"
+			pass
+		except ResponseError as err:
+			raise
+		else:
+			# Put an object 'pumaserver_debug.log' with contents from 'pumaserver_debug.log'.
+			try:
+				minioClient.fput_object('maylogs', 'pumaserver_debug.log', './laserdb.db')
+			except ResponseError as err:
+				print(err)
+		# List all object paths in bucket that begin with my-prefixname.
+		objects = minioClient.list_objects('maylogs', recursive=True)
+		for obj in objects:
+			print(obj.bucket_name, obj.object_name.encode('utf-8'), obj.last_modified,
+				obj.etag, obj.size, obj.content_type)
+			
+			minioClient.remove_object(obj.bucket_name, obj.object_name)
+		# Remove an object.
+		try:
+			minioClient.remove_object('maylogs', 'pumaserver_debug.log')
+		except ResponseError as err:
+		try:
+			print(err)
+			minioClient.remove_bucket("maylogs")
+		except ResponseError as err:
+			print(err)
+		return create_response('Fail','Not currently implemented')
+
 api.add_resource(players, '/players') # Route_4
 api.add_resource(players_Info, '/players/<player_id>') # Route_5
 api.add_resource(add_players, '/players/add') # Route_5
 api.add_resource(remove_players, '/players/remove') # Route_5
 api.add_resource(hit_notify, '/hit/<player_id>/<attacker_id>') # Route_5
-api.add_resource(sync_player_stats, '/stats/<player_id>') # Route_5
+api.add_resource(minio_test, '/minio') # Route_5
 
 
 
