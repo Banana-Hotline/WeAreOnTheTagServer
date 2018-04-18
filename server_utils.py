@@ -1,5 +1,3 @@
-import sqlite3
-from sqlite3 import Error
 
 def create_response(result, message):
     return {"data":{'Result':result,'Message':message}}

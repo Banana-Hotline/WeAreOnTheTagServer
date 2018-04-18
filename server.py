@@ -69,6 +69,7 @@ class minio_test(Resource):
 		try:
 			minioClient.remove_object('maylogs', 'pumaserver_debug.log')
 		except ResponseError as err:
+			pass
 		try:
 			print(err)
 			minioClient.remove_bucket("maylogs")
