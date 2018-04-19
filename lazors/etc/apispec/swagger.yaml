@@ -1,0 +1,103 @@
+swagger: '2.0'
+info:
+  title: Lazors API
+  version: "1.0"
+consumes:
+  - application/json
+produces:
+  - application/json
+security:
+  # enable OAuth protection for all REST endpoints
+  # (only active if the TOKENINFO_URL environment variable is set)
+  - oauth2: [uid]
+paths:
+  /players:
+    get:
+      tags: [players]
+      operationId: lazors.get_players
+      summary: Get all players
+      responses:
+        200:
+          description: Return players
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/player'
+  /players/{player_id}:
+    get:
+      tags: [players]
+      operationId: lazors.get_player
+      summary: Get a single player
+      parameters:
+        - $ref: '#/parameters/player_id'
+      responses:
+        200:
+          description: Return player
+          schema:
+            $ref: '#/definitions/player'
+        404:
+          description: player does not exist
+    put:
+      tags: [players]
+      operationId: lazors.put_player
+      summary: Create or update a player
+      parameters:
+        - $ref: '#/parameters/player_id'
+        - name: player
+          in: body
+          schema:
+            $ref: '#/definitions/player'
+      responses:
+        200:
+          description: player updated
+        201:
+          description: New player created
+    delete:
+      tags: [players]
+      operationId: lazors.delete_player
+      summary: Remove a player
+      parameters:
+        - $ref: '#/parameters/player_id'
+      responses:
+        204:
+          description: player was deleted
+        404:
+          description: player does not exist
+
+
+parameters:
+  player_id:
+    name: player_id
+    description: player's Unique identifier
+    in: path
+    type: string
+    required: true
+    pattern: "^[a-zA-Z0-9-]+$"
+
+definitions:
+  player:
+    type: object
+    required:
+      - name
+    properties:
+      id:
+        type: string
+        description: Unique identifier
+        example: "123"
+        readOnly: true
+      name:
+        type: string
+        description: player's name
+        example: "Susie"
+        minLength: 1
+        maxLength: 100
+
+
+
+securityDefinitions:
+  oauth2:
+    type: oauth2
+    flow: implicit
+    authorizationUrl: https://example.com/oauth2/dialog
+    scopes:
+      uid: Unique identifier of the user accessing the service.
