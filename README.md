@@ -15,4 +15,4 @@ Python 3.4+ is required
   
 # Running the server 
   To run the server run the following command:
-    python lazors.py
+    python3 lazors.py
