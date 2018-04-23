@@ -1,7 +1,7 @@
 # WeAreOnTheTagServer
 Restful API for hosting WeAreOnTheTag lazAR tag games
 
-Python 2.7.14 is required
+Python 3.4+ is required
 
 # Installation
 1. Install Server Dependencies
@@ -15,4 +15,4 @@ Python 2.7.14 is required
   
 # Running the server 
   To run the server run the following command:
-    python server.py
+    python lazors.py
