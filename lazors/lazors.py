@@ -1,4 +1,8 @@
 #!/usr/local/bin/python3
+from gevent import monkey as MONKEE
+MONKEE.patch_all()
+
+
 import connexion
 import gevent.ssl
 import logging
