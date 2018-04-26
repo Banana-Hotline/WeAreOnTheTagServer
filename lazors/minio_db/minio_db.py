@@ -1,7 +1,9 @@
 #!/usr/local/bin/python3
 
 from minio import Minio
-from minio.error import *
+from minio.error import BucketAlreadyOwnedByYou,\
+                        BucketAlreadyExists,\
+                        ResponseError
 import os
 import logging
 import json
@@ -36,7 +38,7 @@ class Minio_DB:
                                 access_key='Q3AM3UQ867SPQQA43P2F',
                                 secret_key='zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG',
                                 secure=True)
-    def makeBucket(self, bucket_name):
+    def make_bucket(self, bucket_name):
         """
         Makes a bucket in the Minio DB
 
@@ -48,10 +50,9 @@ class Minio_DB:
         try:
             self.minioClient.make_bucket(bucket_name, location="us-east-1")
         except BucketAlreadyOwnedByYou as err:
-            logging.info("AlreadyOwned")
+            logging.info(err)
             pass
         except BucketAlreadyExists as err:
-            logging.info("AlreadyExists")
             raise
         except ResponseError as err:
             raise
@@ -109,6 +110,7 @@ class Minio_DB:
         try:
             self.minioClient.remove_object(bucket_name, '{}.json'.format(obj_name))
         except ResponseError as err:
+            logging.info(err)
             pass
     def remove_object_file(self, bucket_name,file_name):
         """
@@ -123,6 +125,7 @@ class Minio_DB:
         try:
             self.minioClient.remove_object(bucket_name, file_name)
         except ResponseError as err:
+            logging.info(err)
             pass
     def remove_bucket(self, bucket_name):
         """
@@ -183,7 +186,7 @@ if(__name__ == '__main__'):
     db = Minio_DB()
     print("Test {} -- Make Bucket".format(test))
     test += 1
-    db.makeBucket(bucket_name)
+    db.make_bucket(bucket_name)
     print("Passed: Bucket made\n")
     print("Test {} -- Write to Bucket".format(test))
     test += 1

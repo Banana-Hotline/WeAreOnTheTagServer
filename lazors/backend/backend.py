@@ -1,8 +1,8 @@
 import logging
-from minio_db import Minio_DB
+from mongo_db import Mongo_DB
 
-db = Minio_DB()
-db.makeBucket("players")
+db = Mongo_DB()
+db.make_bucket("players")
 def get_players():
     """
     Get a list of all players
@@ -16,7 +16,7 @@ def get_players():
     players = []
     player_objs = db.get_bucket_contents("players")
     for player in player_objs:
-        players.append(get_player(player.object_name))
+        players.append(player)
     return players
 
 def get_player(player_id):
@@ -49,7 +49,7 @@ def put_player(player_id, player):
     if(player_id != player['id']):
         player, created = ({"name": player['name']}, False)
         return (player, created)
-    db.makeBucket("players")
+    db.make_bucket("players")
     db.write_to_bucket("players", player_id, player)
     player, created = ({"name": player['name']}, True)
     return (player, created)
