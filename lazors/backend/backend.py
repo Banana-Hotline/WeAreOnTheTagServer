@@ -1,5 +1,8 @@
 import logging
+from mongo_db import Mongo_DB
 
+db = Mongo_DB()
+db.make_bucket("players")
 def get_players():
     """
     Get a list of all players
@@ -11,6 +14,9 @@ def get_players():
     """
     logging.info("Getting list of all players")
     players = []
+    player_objs = db.get_bucket_contents("players")
+    for player in player_objs:
+        players.append(player)
     return players
 
 def get_player(player_id):
@@ -23,7 +29,7 @@ def get_player(player_id):
         player
     """
     logging.info("Getting player {}".format(player_id))
-    player = {"name": "test"}
+    player = db.read_from_bucket("players", player_id)
     return player
 
 def put_player(player_id, player):
@@ -40,7 +46,12 @@ def put_player(player_id, player):
     """
     logging.info("Put player: {}".format(player_id))
     logging.info("Player info: {}".format(player))
-    player, created = ({"name": "test"}, True)
+    if(player_id != player['id']):
+        player, created = ({"name": player['name']}, False)
+        return (player, created)
+    db.make_bucket("players")
+    db.write_to_bucket("players", player_id, player)
+    player, created = ({"name": player['name']}, True)
     return (player, created)
 
 def delete_player(player_id):
@@ -53,4 +64,6 @@ def delete_player(player_id):
         player
     """
     logging.info("Deleting player {}".format(player_id))
+    db.remove_object("players", player_id)
+
     return True
