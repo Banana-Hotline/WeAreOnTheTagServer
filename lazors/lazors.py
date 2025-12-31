@@ -33,6 +33,8 @@ def get_player(player_id):
         player
     """
     player = backend.get_player(player_id=player_id)
+    if player is None:
+        return (None,404)
     return player
 
 def put_player(player_id, player):

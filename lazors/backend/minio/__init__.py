@@ -1,1 +1,0 @@
-from .minio_interface import minio_test
